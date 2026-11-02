@@ -1,0 +1,9 @@
+asset,cve
+booking-web,CVE-2021-44228
+booking-web,CVE-2014-0160
+booking-web,CVE-2021-41773
+finance-db,CVE-2019-0708
+finance-db,CVE-2023-38408
+finance-db,CVE-2016-2183
+staff-wiki,CVE-2022-26134
+staff-wiki,CVE-2023-48795

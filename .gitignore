@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Environments and secrets
+.venv/
+.env
+
+# Tool output and API cache
+.cache/
+out/
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/

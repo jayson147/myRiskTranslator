@@ -1,0 +1,59 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-01-01T12:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2021-44228",
+        "sourceIdentifier": "security@apache.org",
+        "published": "2021-12-10T10:15:09.143",
+        "lastModified": "2025-01-01T00:00:00.000",
+        "vulnStatus": "Analyzed",
+        "descriptions": [
+          {"lang": "en", "value": "Illustrative test description: remote code execution in a logging library."},
+          {"lang": "es", "value": "Descripcion de prueba."}
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "security@apache.org",
+              "type": "Secondary",
+              "cvssData": {"version": "3.1", "baseScore": 9.0, "baseSeverity": "CRITICAL"}
+            },
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "3.1",
+                "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+                "baseScore": 10.0,
+                "baseSeverity": "CRITICAL"
+              },
+              "exploitabilityScore": 3.9,
+              "impactScore": 6.0
+            }
+          ],
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {"version": "2.0", "baseScore": 9.3},
+              "baseSeverity": "HIGH"
+            }
+          ]
+        },
+        "weaknesses": [
+          {"source": "nvd@nist.gov", "type": "Primary", "description": [{"lang": "en", "value": "CWE-917"}]},
+          {"source": "security@apache.org", "type": "Secondary", "description": [
+            {"lang": "en", "value": "CWE-20"},
+            {"lang": "en", "value": "NVD-CWE-Other"}
+          ]}
+        ]
+      }
+    }
+  ]
+}

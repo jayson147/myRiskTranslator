@@ -1,0 +1,39 @@
+# Sample assets for risk-translator. All three are made up.
+#
+# criticality uses the scale in src/risk_translator/scoring.py
+# (CRITICALITY_SCALE). TODO(human): settle the scale and what each level
+# means, and log it in docs/decisions.md.
+#   1 Negligible, 2 Low, 3 Moderate, 4 High, 5 Critical
+#
+# description: a short noun phrase, e.g. "the customer booking website".
+# It is used in the board summary ("It affects booking-web, the ...").
+
+assets:
+  - name: booking-web
+    ip: 10.0.10.5
+    owner: Head of Digital
+    description: the customer booking website, which takes card payments
+    criticality: 5
+    internet_facing: true
+
+  - name: finance-db
+    ip: 10.0.20.12
+    owner: Finance Director
+    description: the accounts and payroll server
+    criticality: 4
+    internet_facing: false
+
+  - name: staff-wiki
+    ip: 10.0.30.8
+    owner: IT Manager
+    description: the internal staff wiki
+    criticality: 2
+    internet_facing: false
+
+  # Phase 4: add your own lab VM here by its IP, then scan only that VM:
+  #   nmap -sV --script vulners -oX samples/lab-scan.xml <your VM's IP>
+  # - name: lab-vm
+  #   ip: 192.168.56.101
+  #   owner: Jayson
+  #   description: my test virtual machine
+  #   criticality: 1

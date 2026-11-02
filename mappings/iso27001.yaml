@@ -1,0 +1,45 @@
+# ISO/IEC 27001:2022 Annex A mapping for risk-translator.
+#
+# Control numbers and short names in our own words only. Never paste text
+# from the standard: it is copyrighted.
+#
+# TODO(human): these entries are the starting point from docs/SPEC.md. Check
+# each one against your Information Risk Management notes, rewrite the
+# board_summary lines in your own words, and add groups for the weaknesses
+# your scans actually find. After a run, look at the CWE column in
+# register.csv: any row whose ISO controls column shows only 8.8 has a weakness
+# type that is not mapped yet (memory-safety and path-traversal CWEs, for
+# example, are not in this starter list).
+
+# Every finding maps to this control.
+baseline:
+  id: "8.8"
+  name: Management of technical vulnerabilities
+
+# A second control, chosen from the CVE's CWE weakness IDs.
+# board_summary is a plain-English line used in the one-page summary.
+weakness_groups:
+  - name: Authentication flaws
+    cwes: [CWE-287, CWE-306, CWE-798]
+    control: {id: "8.5", name: Secure authentication}
+    board_summary: a flaw that could let someone in without a proper login
+
+  - name: Weak or missing cryptography
+    cwes: [CWE-319, CWE-326, CWE-327]
+    control: {id: "8.24", name: Use of cryptography}
+    board_summary: weak or missing encryption that could expose data in transit
+
+  - name: Injection and input validation
+    cwes: [CWE-20, CWE-78, CWE-79, CWE-89]
+    control: {id: "8.28", name: Secure coding}
+    board_summary: a flaw that could let an attacker run their own commands or code
+
+  - name: Misconfiguration
+    cwes: [CWE-16, CWE-1188]
+    control: {id: "8.9", name: Configuration management}
+    board_summary: an insecure default or configuration setting
+
+  - name: Information exposure
+    cwes: [CWE-200]
+    control: {id: "8.12", name: Data leakage prevention}
+    board_summary: a flaw that could leak sensitive information

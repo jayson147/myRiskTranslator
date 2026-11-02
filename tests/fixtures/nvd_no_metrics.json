@@ -1,0 +1,20 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2026-00002",
+        "vulnStatus": "Received",
+        "descriptions": [{"lang": "en", "value": "Illustrative test description, not yet analysed."}],
+        "metrics": {},
+        "weaknesses": [
+          {"source": "nvd@nist.gov", "type": "Primary", "description": [{"lang": "en", "value": "NVD-CWE-noinfo"}]}
+        ]
+      }
+    }
+  ]
+}
