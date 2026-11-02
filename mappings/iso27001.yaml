@@ -1,0 +1,92 @@
+# ISO/IEC 27001:2022 Annex A mapping for risk-translator.
+#
+# Control numbers and short names in our own words only. Never paste text
+# from the standard: it is copyrighted.
+#
+# How it works: every finding maps to the baseline control (8.8). A second
+# control comes from the first of the CVE's CWE weakness IDs that appears in a
+# group below (NVD's own analysis is checked first). A CWE can only be in one
+# group. CWEs not listed here get 8.8 only, and the register shows that.
+#
+# Why these controls: 8.8 covers finding and fixing known flaws, which applies
+# to every CVE. The second control points at the defence that would have
+# limited this type of weakness, so the control owner knows it is theirs too.
+#
+# board_summary is the plain-English line used in summary.md. It completes the
+# sentence "This is ...", so it starts with a lower-case "a".
+
+baseline:
+  id: "8.8"
+  name: Management of technical vulnerabilities
+
+weakness_groups:
+  - name: Injection and code execution
+    # SQL, command, code and expression-language injection, cross-site
+    # scripting, unsafe deserialisation, unsafe file upload, server-side
+    # request forgery, and loading code from an untrusted path.
+    cwes: [CWE-20, CWE-74, CWE-77, CWE-78, CWE-79, CWE-89, CWE-94, CWE-352,
+           CWE-426, CWE-427, CWE-428, CWE-434, CWE-502, CWE-611, CWE-917, CWE-918]
+    control: {id: "8.28", name: Secure coding}
+    board_summary: >-
+      a flaw that could let an attacker run their own commands on the system
+      and take control of it
+
+  - name: Memory-handling flaws
+    # Buffer overflows, out-of-bounds reads and writes, use after free,
+    # null pointer dereferences and integer overflows.
+    cwes: [CWE-119, CWE-120, CWE-121, CWE-122, CWE-125, CWE-190, CWE-416,
+           CWE-476, CWE-787]
+    control: {id: "8.28", name: Secure coding}
+    board_summary: >-
+      a memory-handling bug that could let an attacker crash the system, read
+      data from its memory or take control of it
+
+  - name: Access control flaws
+    # Path traversal, missing or broken authorisation, and privilege escalation.
+    cwes: [CWE-22, CWE-23, CWE-269, CWE-284, CWE-285, CWE-639, CWE-862, CWE-863]
+    control: {id: "8.3", name: Information access restriction}
+    board_summary: >-
+      a flaw that could let someone reach files or functions they should not
+      have access to
+
+  - name: Authentication flaws
+    # Broken or missing login checks, hard-coded passwords, weak password rules
+    # and poorly protected credentials.
+    cwes: [CWE-287, CWE-288, CWE-290, CWE-294, CWE-306, CWE-307, CWE-521,
+           CWE-522, CWE-798]
+    control: {id: "8.5", name: Secure authentication}
+    board_summary: >-
+      a flaw that could let someone log in without a valid password, or as
+      someone else
+
+  - name: Weak or missing cryptography
+    # Data sent unencrypted, weak or broken algorithms, bad certificate checks,
+    # predictable random numbers and broken integrity checks.
+    cwes: [CWE-295, CWE-310, CWE-319, CWE-326, CWE-327, CWE-328, CWE-330, CWE-354]
+    control: {id: "8.24", name: Use of cryptography}
+    board_summary: >-
+      weak or missing encryption that could let someone read or tamper with
+      data as it travels over the network
+
+  - name: Misconfiguration
+    # Insecure default settings and overly open file or object permissions.
+    cwes: [CWE-16, CWE-276, CWE-732, CWE-1188]
+    control: {id: "8.9", name: Configuration management}
+    board_summary: >-
+      an insecure default or configuration setting that leaves the system more
+      open than it should be
+
+  - name: Information exposure
+    # Sensitive data shown in responses, error messages or log files.
+    cwes: [CWE-200, CWE-201, CWE-209, CWE-532]
+    control: {id: "8.12", name: Data leakage prevention}
+    board_summary: >-
+      a flaw that could leak sensitive information, such as passwords or
+      customer data, to an attacker
+
+  - name: Denial of service
+    # Resource exhaustion, uncontrolled recursion and infinite loops.
+    cwes: [CWE-400, CWE-674, CWE-770, CWE-835]
+    control: {id: "8.6", name: Capacity management}
+    board_summary: >-
+      a flaw that could let an attacker overload the system and take it offline

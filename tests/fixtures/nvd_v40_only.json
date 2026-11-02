@@ -1,0 +1,26 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2025-00001",
+        "vulnStatus": "Awaiting Analysis",
+        "descriptions": [{"lang": "en", "value": "Illustrative test description with only a CVSS v4.0 score."}],
+        "metrics": {
+          "cvssMetricV40": [
+            {
+              "source": "cna@example.org",
+              "type": "Secondary",
+              "cvssData": {"version": "4.0", "baseScore": 8.7}
+            }
+          ]
+        },
+        "weaknesses": []
+      }
+    }
+  ]
+}

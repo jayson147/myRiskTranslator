@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-made test scan. Describes no real machine. -->
+<nmaprun scanner="nmap" args="nmap -sV --script vulners -oX test.xml" version="7.95">
+  <!-- Known asset, two ports with vulners results, one port without -->
+  <host>
+    <status state="up"/>
+    <address addr="10.0.10.5" addrtype="ipv4"/>
+    <ports>
+      <port protocol="tcp" portid="22">
+        <state state="open"/>
+        <service name="ssh" product="OpenSSH" version="8.9p1"/>
+        <script id="vulners" output="cpe:/a:openbsd:openssh:8.9p1 ...">
+          <table key="cpe:/a:openbsd:openssh:8.9p1">
+            <table>
+              <elem key="id">CVE-2023-38408</elem>
+              <elem key="cvss">9.8</elem>
+              <elem key="type">cve</elem>
+              <elem key="is_exploit">false</elem>
+            </table>
+            <table>
+              <elem key="id">PACKETSTORM:173661</elem>
+              <elem key="cvss">9.8</elem>
+              <elem key="type">packetstorm</elem>
+              <elem key="is_exploit">true</elem>
+            </table>
+            <table>
+              <elem key="id">cve-2023-48795</elem>
+              <elem key="cvss">5.9</elem>
+              <elem key="type">cve</elem>
+            </table>
+            <table>
+              <elem key="id">CVE-2023-38408</elem>
+              <elem key="type">cve</elem>
+            </table>
+          </table>
+        </script>
+      </port>
+      <port protocol="tcp" portid="80">
+        <state state="open"/>
+        <service name="http" product="Apache httpd" version="2.4.49"/>
+        <script id="vulners" output="...">
+          <table key="cpe:/a:apache:http_server:2.4.49">
+            <table>
+              <elem key="id">CVE-2021-41773</elem>
+              <elem key="type">cve</elem>
+            </table>
+          </table>
+        </script>
+      </port>
+      <port protocol="tcp" portid="443">
+        <state state="open"/>
+        <service name="https"/>
+      </port>
+    </ports>
+  </host>
+  <!-- Known asset, old-style vulners output (text only, no tables) -->
+  <host>
+    <status state="up"/>
+    <address addr="10.0.20.12" addrtype="ipv4"/>
+    <address addr="00:11:22:33:44:55" addrtype="mac"/>
+    <ports>
+      <port protocol="tcp" portid="3389">
+        <state state="open"/>
+        <service name="ms-wbt-server"/>
+        <script id="vulners" output="&#10;  cpe:/o:microsoft:windows:&#10;    CVE-2019-0708  9.8  https://vulners.com/cve/CVE-2019-0708&#10;"/>
+      </port>
+    </ports>
+  </host>
+  <!-- Known asset with no CVEs -->
+  <host>
+    <status state="up"/>
+    <address addr="10.0.30.8" addrtype="ipv4"/>
+    <ports>
+      <port protocol="tcp" portid="8080">
+        <state state="open"/>
+        <service name="http-proxy"/>
+      </port>
+    </ports>
+  </host>
+  <!-- Host not in the assets file -->
+  <host>
+    <status state="up"/>
+    <address addr="192.168.99.99" addrtype="ipv4"/>
+    <ports>
+      <port protocol="tcp" portid="21">
+        <state state="open"/>
+        <service name="ftp" product="vsftpd" version="2.3.4"/>
+        <script id="vulners" output="...">
+          <table key="cpe:/a:vsftpd:vsftpd:2.3.4">
+            <table>
+              <elem key="id">CVE-2011-2523</elem>
+              <elem key="type">cve</elem>
+            </table>
+          </table>
+        </script>
+      </port>
+    </ports>
+  </host>
+</nmaprun>

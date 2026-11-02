@@ -1,0 +1,29 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2014-0160",
+        "vulnStatus": "Modified",
+        "descriptions": [{"lang": "en", "value": "Illustrative test description: memory disclosure in a TLS library."}],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {"version": "2.0", "vectorString": "AV:N/AC:L/Au:N/C:P/I:N/A:N", "baseScore": 5.0},
+              "baseSeverity": "MEDIUM"
+            }
+          ]
+        },
+        "weaknesses": [
+          {"source": "nvd@nist.gov", "type": "Primary", "description": [{"lang": "en", "value": "CWE-200"}]}
+        ]
+      }
+    }
+  ]
+}
