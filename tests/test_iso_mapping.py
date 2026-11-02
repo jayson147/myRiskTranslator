@@ -28,7 +28,10 @@ def test_cwe_adds_second_control(mapping_path):
 
 def test_first_mapped_cwe_wins(mapping_path):
     mapping = load_mapping(mapping_path)
-    assert [c.id for c in mapping.controls_for(["CWE-917", "CWE-200", "CWE-79"])] == ["8.8", "8.12"]
+    assert [c.id for c in mapping.controls_for(["CWE-99999", "CWE-200", "CWE-79"])] == [
+        "8.8",
+        "8.12",
+    ]
 
 
 def write(tmp_path: Path, text: str) -> Path:

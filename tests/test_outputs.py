@@ -80,10 +80,10 @@ def test_risks_sorted_and_numbered(risks):
     assert [(r.risk_id, r.finding.cve_id, r.score) for r in risks] == [
         ("R-001", "CVE-2021-44228", 25),
         ("R-002", "CVE-2014-0160", 20),
-        ("R-003", "CVE-2023-48795", 6),
+        ("R-003", "CVE-2023-48795", 3),
     ]
     assert [c.id for c in risks[0].controls] == ["8.8", "8.28"]
-    assert risks[0].weakness == "Injection and input validation"
+    assert risks[0].weakness == "Injection and code execution"
 
 
 def test_register_csv(risks, tmp_path):
@@ -93,7 +93,7 @@ def test_register_csv(risks, tmp_path):
         rows = list(csv.DictReader(handle))
     assert list(rows[0]) == COLUMNS
     assert len(rows) == 3
-    assert [row["Score"] for row in rows] == ["25", "20", "6"]
+    assert [row["Score"] for row in rows] == ["25", "20", "3"]
     assert rows[0]["On KEV"] == "Yes" and rows[2]["On KEV"] == "No"
     assert rows[0]["ISO 27001 controls"].startswith("8.8 Management of technical vulnerabilities")
     assert rows[0]["Vulnerability description"].startswith("'=")  # formula defused
@@ -124,7 +124,7 @@ def test_heatmap(risks, tmp_path):
     path = tmp_path / "heatmap.png"
     write_heatmap(risks, path)
     assert path.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
-    assert count_cells(risks) == {(5, 5): 1, (5, 4): 1, (3, 2): 1}
+    assert count_cells(risks) == {(5, 5): 1, (5, 4): 1, (3, 1): 1}
 
 
 def test_heatmap_with_no_risks(tmp_path):
@@ -192,3 +192,46 @@ def test_summary_singular_grammar(risks):
     assert "**0 risks need action soon**" in text
     risks[0].band = "High"
     assert "**1 risk needs action soon**" in build_summary(risks[:1], context())
+
+
+def actions_section(text: str) -> str:
+    return text.split("## Recommended actions")[1].split("## How this was scored")[0]
+
+
+def test_actions_put_actively_exploited_flaws_first(risks):
+    actions = actions_section(build_summary(risks, context()))
+    assert actions.count("\n1. ") == 1 and "\n3. " in actions and "\n4. " not in actions
+    first = actions.split("\n2. ")[0]
+    assert (
+        "**Fix the 2 flaws that criminals are already using** on booking-web within 7 days."
+        in first
+    )
+
+
+def test_actions_when_nothing_urgent(risks):
+    actions = actions_section(build_summary(risks[2:], context()))
+    assert "Keep the current patching routine" in actions
+    assert "Close the gaps in this report" in actions  # risks[2] has a data gap
+    assert "Repeat this assessment every month" in actions
+
+
+def test_actions_ask_owners_for_fix_dates(risks):
+    for risk in risks:
+        risk.enrichment.on_kev = False
+    risks[0].band = "Critical"
+    actions = actions_section(build_summary(risks, context()))
+    assert "Ask Head of Digital to commit to fix dates" in actions
+    assert "Check whether booking-web needs" in actions or "Close the gaps" in actions
+
+
+def test_actions_with_no_risks_still_three():
+    actions = actions_section(build_summary([], context()))
+    assert "\n3. " in actions
+
+
+def test_top_risk_heading_names_the_weakness(risks):
+    text = build_summary(risks, context())
+    assert (
+        "1. **booking-web: Injection and code execution** (Critical, score 25 of 25, R-001)" in text
+    )
+    assert "**staff-wiki: known software flaw**" in text

@@ -39,9 +39,11 @@ class IsoMapping:
     def group_for(self, cwe_ids: list[str]) -> WeaknessGroup | None:
         """Return the group for the first of the CVE's CWEs that is mapped, or None.
 
-        TODO(human): decide what happens when a CVE's CWEs fall in more than one
-        group. The placeholder takes the first match in NVD's order, to keep
-        "8.8 plus one". The alternative is to list every matched control.
+        When a CVE's CWEs fall in more than one group, the first match wins, so
+        every risk gets exactly "8.8 plus one". The NVD parser puts NVD's own
+        (Primary) weakness analysis first, so that is the one that counts. One
+        extra control keeps the register readable and gives one clear control
+        owner per risk; listing every match would spread accountability thinly.
         """
         for cwe_id in cwe_ids:
             for group in self.groups:

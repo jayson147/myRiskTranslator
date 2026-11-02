@@ -97,7 +97,10 @@ def parse_nvd_cve(cve: dict) -> NvdRecord:
     )
 
     cwe_ids: list[str] = []
-    for weakness in cve.get("weaknesses") or []:
+    weaknesses = cve.get("weaknesses") or []
+    # NVD's own analysis ("Primary") first, then other sources ("Secondary").
+    weaknesses = sorted(weaknesses, key=lambda w: w.get("type") != "Primary")
+    for weakness in weaknesses:
         for item in weakness.get("description") or []:
             value = item.get("value", "")
             if value.startswith("CWE-") and value not in IGNORED_CWES:

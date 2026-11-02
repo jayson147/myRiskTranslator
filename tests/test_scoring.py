@@ -1,7 +1,7 @@
 """Scoring table: example inputs with the expected likelihood, impact, score and band.
 
-These expectations encode the placeholder decisions in scoring.py. When you
-change a decision there, update the matching rows here.
+These expectations encode the decisions in scoring.py. When you change a
+decision there, update the matching rows here.
 """
 
 import pytest
@@ -10,8 +10,11 @@ from risk_translator.models import Asset, Enrichment
 from risk_translator.scoring import band_for, score_impact, score_likelihood, treatment_for
 
 CRITICAL = Asset("crit", None, "o", "", criticality=5)
+HIGH = Asset("high", None, "o", "", criticality=4)
 MODERATE = Asset("mod", None, "o", "", criticality=3)
+MINOR = Asset("minor", None, "o", "", criticality=2)
 LOW = Asset("low", None, "o", "", criticality=1)
+EXPOSED = Asset("web", None, "o", "", criticality=3, internet_facing=True)
 
 
 def data(**fields) -> Enrichment:
@@ -116,6 +119,43 @@ CASES = [
     ("low asset floored at 1", data(cvss_severity="LOW"), LOW, 1, 1, 1, "Low"),
     ("CVSS none counts as 1", data(cvss_severity="NONE"), MODERATE, 1, 1, 1, "Low"),
     ("lower-case severity accepted", data(cvss_severity="high"), MODERATE, 1, 3, 3, "Low"),
+    (
+        "high asset lifts impact",
+        data(on_kev=True, cvss_severity="HIGH"),
+        HIGH,
+        5,
+        4,
+        20,
+        "Critical",
+    ),
+    (
+        "minor asset lowers impact",
+        data(epss_percentile=0.9, cvss_severity="HIGH"),
+        MINOR,
+        3,
+        2,
+        6,
+        "Medium",
+    ),
+    (
+        "internet-facing adds 1",
+        data(epss_percentile=0.96, cvss_severity="HIGH"),
+        EXPOSED,
+        5,
+        3,
+        15,
+        "High",
+    ),
+    ("internet-facing, no EPSS", data(cvss_severity="MEDIUM"), EXPOSED, 2, 2, 4, "Low"),
+    (
+        "internet-facing on KEV capped at 5",
+        data(on_kev=True, cvss_severity="CRITICAL"),
+        EXPOSED,
+        5,
+        4,
+        20,
+        "Critical",
+    ),
 ]
 
 
@@ -132,11 +172,14 @@ def test_scoring_table(enrichment, asset, likelihood, impact, score, band):
     assert band_for(score) == band
 
 
-def test_internet_facing_bonus_applies_when_set(monkeypatch):
-    monkeypatch.setattr("risk_translator.scoring.INTERNET_FACING_LIKELIHOOD_BONUS", 1)
-    exposed = Asset("web", None, "o", "", 3, internet_facing=True)
-    assert score_likelihood(data(epss_percentile=0.96), exposed)[0] == 5
-    assert score_likelihood(data(on_kev=True), exposed)[0] == 5  # still capped at 5
+def test_internet_facing_note():
+    _, notes = score_likelihood(data(epss_percentile=0.96), EXPOSED)
+    assert notes == ["EPSS percentile 96%", "Internet-facing (+1)"]
+
+
+def test_no_bonus_when_switched_off(monkeypatch):
+    monkeypatch.setattr("risk_translator.scoring.INTERNET_FACING_LIKELIHOOD_BONUS", 0)
+    assert score_likelihood(data(epss_percentile=0.96), EXPOSED)[0] == 4
 
 
 def test_notes_explain_the_score():

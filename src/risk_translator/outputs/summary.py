@@ -125,7 +125,7 @@ def _top_risks(risks: list[Risk]) -> list[str]:
     for number, risk in enumerate(risks[:TOP_N], start=1):
         asset = risk.finding.asset
         lines.append(
-            f"{number}. **{asset.name}: {risk.board_summary}** "
+            f"{number}. **{asset.name}: {risk.weakness or 'known software flaw'}** "
             f"({risk.band}, score {risk.score} of 25, {risk.risk_id})"
         )
         what = _upper_first(risk.board_summary or "")
@@ -157,35 +157,77 @@ def _kev_section(risks: list[Risk]) -> list[str]:
     return [*lines, ""]
 
 
-def _actions(risks: list[Risk]) -> list[str]:
+def _join(names: list[str]) -> str:
+    """Join names as "a", "a and b" or "a, b and c"."""
+    if len(names) <= 1:
+        return "".join(names)
+    return f"{', '.join(names[:-1])} and {names[-1]}"
+
+
+def _actions(risks: list[Risk], context: SummaryContext) -> list[str]:
     """Three recommended actions, chosen by rules from the results.
 
-    TODO(human): these rules and their wording are placeholders. Decide what a
-    board should be asked to do, and rewrite them in your own words.
+    Candidate actions are listed in priority order and the first three that
+    apply are used, so the board always gets three concrete asks, most urgent
+    first: stop active exploitation, commit owners to dates, close any gaps in
+    the data, then keep the process going.
     """
     kev = [risk for risk in risks if risk.enrichment.on_kev]
-    urgent = [risk for risk in risks if risk.band in ("Critical", "High")]
-    actions: list[str] = []
+    other_urgent = [
+        risk for risk in risks if risk.band in ("Critical", "High") and not risk.enrichment.on_kev
+    ]
+    candidates: list[str] = []
+
     if kev:
         systems = sorted({risk.finding.asset.name for risk in kev})
-        actions.append(
-            f"Fix the {_plural(len(kev), 'actively exploited flaw')} first, on "
-            f"{', '.join(systems)}. {TREATMENTS.get('Critical', '')}."
+        start = f", starting with {kev[0].finding.asset.name}" if len(systems) > 1 else ""
+        candidates.append(
+            f"**Fix the {_plural(len(kev), 'flaw')} that criminals are already using** on "
+            f"{_join(systems)} within 7 days{start}. "
+            "These are the most likely way an attacker would get in."
         )
-    if urgent:
-        owners = sorted({risk.finding.asset.owner for risk in urgent})
-        actions.append(
-            f"Ask {', '.join(owners)} to agree fix dates for the "
-            f"{_plural(len(urgent), 'critical or high risk')} "
-            "and report progress at the next meeting."
+
+    if other_urgent:
+        owners = sorted({risk.finding.asset.owner for risk in other_urgent})
+        extra = "other " if kev else ""
+        candidates.append(
+            f"**Ask {_join(owners)} to commit to fix dates** for the "
+            f"{_plural(len(other_urgent), extra + 'high or critical risk')}, "
+            "and report progress at the next board meeting."
         )
-    actions += [
-        "Repeat this assessment monthly, so new flaws and fixes are tracked over time.",
-        "Confirm each system's importance rating with its owner, as it drives these scores.",
-        "Patch the medium and low risks through the normal monthly update cycle.",
+    elif not kev and risks:
+        candidates.append(
+            "**Keep the current patching routine**: there are no high or critical risks, "
+            "so the medium and low ones can be fixed through normal monthly updates."
+        )
+
+    if context.warnings or any(risk.enrichment.gaps for risk in risks):
+        candidates.append(
+            "**Close the gaps in this report** (listed below): add any unlisted systems "
+            "to the asset list and re-run the assessment, so no risk is hidden by missing data."
+        )
+
+    exposed = sorted(
+        {risk.finding.asset.name for risk in risks if risk.finding.asset.internet_facing}
+    )
+    if exposed and (kev or other_urgent):
+        candidates.append(
+            f"**Check whether {_join(exposed)} {'needs' if len(exposed) == 1 else 'need'} "
+            "to be reachable from the internet.** "
+            "Every exposed system is open to attackers anywhere in the world."
+        )
+
+    candidates += [
+        "**Repeat this assessment every month** and track whether the number of high and "
+        "critical risks is going down.",
+        "**Confirm each system's importance rating with its owner**, as those ratings "
+        "drive the impact scores in this report.",
+        "**Make sure every system on the asset list is scanned**, so the next report "
+        "covers the whole organisation.",
     ]
+
     lines = ["## Recommended actions", ""]
-    lines += [f"{number}. {action}" for number, action in enumerate(actions[:3], start=1)]
+    lines += [f"{number}. {action}" for number, action in enumerate(candidates[:3], start=1)]
     return [*lines, ""]
 
 
@@ -199,6 +241,7 @@ def _method() -> list[str]:
         "- **Likelihood:** how likely an attack is. Flaws on CISA's *KEV* list (known to be "
         "exploited right now) score highest. Otherwise we use *EPSS*, an industry forecast of "
         "how likely a flaw is to be attacked in the next 30 days.",
+        "- **Likelihood also goes up by one** for systems that can be reached from the internet.",
         "- **Impact:** how much damage it could do. We start from *CVSS*, the standard 0 to 10 "
         "severity rating, and adjust it for how important the system is to the business.",
         "",
@@ -256,7 +299,7 @@ def build_summary(risks: list[Risk], context: SummaryContext) -> str:
     lines += _headline(risks, context)
     lines += _top_risks(risks)
     lines += _kev_section(risks)
-    lines += _actions(risks)
+    lines += _actions(risks, context)
     lines += _method()
     lines += _gaps(context, risks)
     lines += _credits(context)

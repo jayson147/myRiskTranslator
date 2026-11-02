@@ -101,6 +101,12 @@ def test_parse_prefers_v31_primary_score():
     assert record.cwe_ids == ["CWE-917", "CWE-20"]  # NVD-CWE-Other dropped
 
 
+def test_parse_puts_nvd_primary_weakness_first():
+    cve = nvd_cve("nvd_v31.json")
+    cve["weaknesses"].reverse()  # Secondary source listed first
+    assert parse_nvd_cve(cve).cwe_ids == ["CWE-917", "CWE-20"]
+
+
 def test_parse_falls_back_to_v2_severity_on_metric():
     record = parse_nvd_cve(nvd_cve("nvd_v2_only.json"))
     assert (record.cvss_score, record.cvss_severity, record.cvss_version) == (5.0, "MEDIUM", "2.0")

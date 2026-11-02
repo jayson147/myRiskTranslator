@@ -1,9 +1,15 @@
 # Sample assets for risk-translator. All three are made up.
 #
-# criticality uses the scale in src/risk_translator/scoring.py
-# (CRITICALITY_SCALE). TODO(human): settle the scale and what each level
-# means, and log it in docs/decisions.md.
-#   1 Negligible, 2 Low, 3 Moderate, 4 High, 5 Critical
+# criticality: how much harm the business would suffer if the system were
+# breached or went offline (defined in src/risk_translator/scoring.py):
+#   1 Negligible  test or lab system, no business data
+#   2 Low         internal convenience tool, no sensitive data
+#   3 Moderate    supports day-to-day work or holds internal data
+#   4 High        important process, or personal or financial data
+#   5 Critical    customer-facing or core to revenue, or payment data
+#
+# internet_facing: true if the system can be reached from the internet. It
+# adds 1 to likelihood.
 #
 # description: a short noun phrase, e.g. "the customer booking website".
 # It is used in the board summary ("It affects booking-web, the ...").
